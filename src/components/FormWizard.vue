@@ -1,42 +1,66 @@
 <template>
-    <div class="vue-step-wizard">
-        <div class="step-header">
-        <div class="step-progress">
-            <div class="bar progressbar" :style="{ width: progress + '%' }">
+    <div :class="getClassesFor('wizard_container')">
+        <div :class="getClassesFor('wizard_header')">
+          <slot name="progress-bar" v-bind:progress="progress" v-if="progressBeforeTabs">
+            <div :class="getClassesFor('wizard_progress')">
+              <div :class="getClassesFor('progress_bar')" :style="{ width: progress + '%' }"></div>
             </div>
-        </div>
-        <ul class="step-pills">
-            <li @click.prevent.stop="selectTab(index)" class="step-item" :class="{ 'active': tab.isActive, 'validated': tab.isValidated }" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
+          </slot>
+          <ul :class="getClassesFor('tabs')">
+            <li @click.prevent.stop="selectTab(index)" :class="getTabClasses(tab)" v-for="(tab, index) in tabs" v-bind:key="`tab-${index}`">
+              <slot name="tab-layout" v-bind:tab="tab" v-bind:index="index">
                 <a class="step-link" href="#">
-                        <span class="tabStatus">{{index+1}} </span> 
-                        <span class="tabLabel">{{tab.title}}</span>
+                  <span class="tabStatus">{{index+1}} </span>
+                  <span class="tabLabel">{{tab.title}}</span>
                 </a>
+              </slot>
             </li>
-        </ul>
+          </ul>
         </div>
-        <div class="step-body">
-            <form>
-                <slot></slot>
-            </form>
-        </div>
-        <div class="step-footer">
-            <div class="btn-group" role="group">
-                <template v-if="!submitSuccess">
-                  <button @click="previousTab" :disabled="currentTab === 0" class="step-button step-button-previous">Previous</button>
-                  <button @click="nextTab" v-if="currentTab < totalTabs - 1" class="step-button step-button-next">Next</button>
-                  <button @click="onSubmit" v-if="currentTab === totalTabs - 1" class="step-button step-button-submit">Submit</button>
-                </template>
-                <template v-else>
-                  <button @click="reset" class="step-button step-button-reset">Reset</button>
-                </template>
+        <div :class="getClassesFor('wizard_content')">
+          <slot name="progress-bar" v-bind:progress="progress" v-if="progressAfterTabs">
+            <div :class="getClassesFor('wizard_progress')">
+              <div :class="getClassesFor('progress_bar')" :style="{ width: progress + '%' }"></div>
             </div>
+          </slot>
+
+          <form>
+            <slot></slot>
+          </form>
         </div>
+        <slot name="footer"
+              v-bind:submitSuccess="submitSuccess"
+              v-bind:previousEnabled="previousEnabled"
+              v-bind:nextEnabled="nextEnabled"
+              v-bind:submitEnabled="submitEnabled"
+              v-bind:previousTab="previousTab"
+              v-bind:nextTab="nextTab"
+              v-bind:onSubmit="onSubmit"
+              v-bind:reset="reset">
+          <div class="step-footer">
+            <div class="btn-group" role="group">
+              <template v-if="!submitSuccess">
+                <button @click="previousTab" :disabled="!previousEnabled" :class="getClassesFor('previous_button')">Previous</button>
+                <button @click="nextTab" v-if="nextEnabled" :class="getClassesFor('next_button')">Next</button>
+                <button @click="onSubmit" v-if="submitEnabled" :class="getClassesFor('submit_button')">Submit</button>
+              </template>
+              <template v-else>
+                <button @click="reset" :class="getClassesFor('reset_button')">Reset</button>
+              </template>
+            </div>
+          </div>
+        </slot>
     </div>
 </template>
 <script>
 import { store } from "./store.js";
 export default {
     name: 'form-wizard',
+    props: [
+      'classes',
+      'progressBeforeTabs',
+      'progressAfterTabs',
+    ],
     data(){
         return{
             tabs: [],
@@ -45,23 +69,41 @@ export default {
             storeState: store.state,
             submitSuccess : false,
             progress: 0,
-            isValidationSupport: false
+            isValidationSupport: false,
+            wizardClasses: {
+              previous_button: 'step-button step-button-previous',
+              next_button: 'step-button step-button-next',
+              submit_button: 'step-button step-button-submit',
+              reset_button: 'step-button step-button-reset',
+              tabs: 'step-pills',
+              tab_single: 'step-item',
+
+              // Container
+              wizard_container: 'vue-step-wizard',
+              wizard_content: 'step-body',
+              wizard_header: 'step-header',
+              wizard_progress: 'step-progress',
+              progress_bar: 'bar progressbar',
+            }
         }
     },
     mounted(){
-            this.tabs = this.$children;
-            this.totalTabs = this.tabs.length;
-            this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
+        if (typeof this.classes !== "undefined" && this.classes !== null) {
+            this.wizardClasses = this.mergeClassesWith(this.classes);
+        }
 
-            //Select first tab if none is marked selected
-            if(this.currentTab === -1 && this.totalTabs > 0){  
-                this.tabs[0].isActive = true;
-                this.currentTab = 0;
-            }
-            
-            //Setup Initial Progress
-            this.progress = ((this.currentTab + 1) / this.totalTabs * 100);
+        this.tabs = this.$children;
+        this.totalTabs = this.tabs.length;
+        this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
 
+        //Select first tab if none is marked selected
+        if(this.currentTab === -1 && this.totalTabs > 0){
+            this.tabs[0].isActive = true;
+            this.currentTab = 0;
+        }
+
+        //Setup Initial Progress
+        this.progress = ((this.currentTab + 1) / this.totalTabs * 100);
     },
 
     updated(){
@@ -69,7 +111,7 @@ export default {
           Using this lifehook - since store variable gets updated after component is mounted
           isValidationSupport checks if user is looking to perform validation on each step
         */
-        this.isValidationSupport = (Object.keys(this.storeState.v).length !== 0 && this.storeState.v.constructor === Object) ? true : false;
+        this.isValidationSupport = (Object.keys(this.storeState.v).length !== 0 && this.storeState.v.constructor === Object);
     },
 
     methods:{
@@ -160,12 +202,60 @@ export default {
             this.tabs[this.currentTab].isValidated = true;
 
             return true;
+        },
+
+        mergeClassesWith(classes) {
+            const resultClasses = this.wizardClasses;
+
+            for (let key in classes) {
+                resultClasses[key] = classes[key];
+            }
+
+            return resultClasses;
+        },
+
+        getClassesFor(element) {
+            return this.wizardClasses[element];
+        },
+
+        getClassesWithExtraFor(element, extra) {
+          const baseClasses = this.getClassesFor(element).split(' ');
+          const classes = {};
+
+          for (const className of baseClasses) {
+            classes[className] = true;
+          }
+
+          for (const className in extra) {
+              classes[className] = extra[className];
+          }
+
+          return classes;
+        },
+
+        getTabClasses(tab) {
+            return this.getClassesWithExtraFor('tab_single', {
+              'active': tab.isActive,
+              'validated': tab.isValidated
+            });
         }
+
     },
     watch:{
        currentTab(){
           store.setCurrentTab(this.currentTab);
        }
+    },
+    computed: {
+        previousEnabled() {
+            return this.currentTab !== 0;
+        },
+        nextEnabled() {
+            return this.currentTab < this.totalTabs - 1;
+        },
+        submitEnabled() {
+            return this.currentTab === this.totalTabs - 1;
+        }
     }
     
 }
@@ -178,7 +268,6 @@ export default {
 
   .vue-step-wizard{
     background-color: #F7F8FC;
-    width: 900px;
     margin: auto;
     padding: 40px;
   }
