@@ -1,7 +1,7 @@
 {
-  "name": "vue-step-wizard",
-  "description": "A simple vuejs step/form wizard plugin",
-  "version": "0.1.20",
+  "name": "vue-step-wizard-bootstrap",
+  "description": "A simple vuejs step/form wizard plugin. Forked version",
+  "version": "0.1.20.1",
   "private": false,
   "author": {
     "name": "Alexey Rudkovskiy",
