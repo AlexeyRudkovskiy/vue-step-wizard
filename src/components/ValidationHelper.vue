@@ -34,7 +34,6 @@ export default {
 
     validations() {
         const { $formName = 'formData' } = this._data;
-        console.log($formName);
         return {
             [$formName]: this.rules
         };
