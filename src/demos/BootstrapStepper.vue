@@ -1,5 +1,5 @@
 <template>
-    <bootstrap-form-wizard ref="formwizard"
+    <bootstrap-form-wizard ref="boo"
                  @onComplete="onComplete"
                  @onNextStep="nextStep"
                  @onPreviousStep="previousStep"
@@ -97,9 +97,10 @@ export default {
         }
     },
     methods:{
+
         onComplete(){
             alert("Submitting Form ! Rock On");
-            this.$refs.formwizard.changeStatus();
+            this.$refs.boo.changeStatus();
         },
 
         reset(){

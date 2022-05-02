@@ -27,13 +27,18 @@ export default {
     },
     methods:{
         hasError(fieldName){
-            return (fieldName in this.$v.formData) && (this.$v.formData[fieldName].$error)
+          const { $formName = 'formData' } = this._data;
+            return (fieldName in this.$v[$formName]) && (this.$v[$formName][fieldName].$error)
         }
     },
+
     validations() {
+        const { $formName = 'formData' } = this._data;
+        console.log($formName);
         return {
-            formData : this.rules
+            [$formName]: this.rules
         };
     }
+
 }
 </script>

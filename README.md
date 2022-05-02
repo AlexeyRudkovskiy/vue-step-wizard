@@ -110,7 +110,39 @@ If you do not need progress bar, you can hide it by setting this properties:
 | progressBeforeTabs         | Show progress bar before tabs                                |
 | progressAfterTabs          | Show progress bar after tabs inside tabs content block       |
 
-### Buy original author a Pizza
+### Validation
+
+We use ``vuelidate`` package for validation. You should define validation rules by wizard steps.
+All validation rules should be under ``validationRules`` data field:
+
+```json
+{
+  "formData": {
+      "firstName": null
+  },
+  "validationRules": [
+      { "firstName": { /* validation rules */ } }
+  ]
+}
+```
+
+By default validation works on ``formData`` nested object, so you **should** use formData to store your data.
+However, you can change it by setting up ``$formName`` field. When ``$formName`` field is present, then we'll use
+nested object with this name. Example:
+
+```json
+{
+  "$formName": "userDetails",
+  "userDetails": {
+      "firstName": null
+  },
+  "validationRules": [
+      { "firstName": { /* validation rules */ } }
+  ]
+}
+```
+
+### Buy *original author* a Pizza
 
 You have an option to buy me a pizza if you found this plugin useful
 

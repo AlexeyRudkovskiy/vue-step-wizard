@@ -3,6 +3,7 @@
       :classes="bootstrapClasses"
       :progress-before-tab="false"
       :progress-after-tabs="true"
+      ref="wizardRef"
 
       @onComplete="onComplete"
       @onNextStep="nextStep"
@@ -44,6 +45,7 @@ export default {
   components: {
     FormWizard
   },
+  props: [ 'wizardRef' ],
   data() {
     return {
       bootstrapClasses: {
@@ -71,14 +73,17 @@ export default {
       this.$emit('onComplete', arguments);
     },
     nextStep() {
-      this.$emit('nextStep', arguments);
+      this.$emit('onNextStep', arguments);
     },
     previousStep() {
-      this.$emit('previousStep', arguments);
+      this.$emit('onPreviousStep', arguments);
     },
     reset() {
-      this.$emit('reset', arguments);
-    }
+      this.$emit('onReset', arguments);
+    },
+    changeStatus(){
+      this.$refs.wizardRef.changeStatus();
+    },
   }
 }
 </script>

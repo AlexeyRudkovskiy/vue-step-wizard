@@ -1,7 +1,7 @@
 {
   "name": "vue-step-wizard-bootstrap",
   "description": "A simple vuejs step/form wizard plugin. Forked version",
-  "version": "0.1.20.2",
+  "version": "0.1.20.3",
   "private": false,
   "author": {
     "name": "Alexey Rudkovskiy",
@@ -52,9 +52,12 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": "off"
+    },
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "babel-eslint",
+      "ecmaVersion": 6
     }
   },
   "postcss": {
