@@ -7,9 +7,9 @@
         <tab-content title="About You" :selected="true">
             <div class="form-group">
                 <label for="fullName">Full Name</label>
-                <input type="text" class="form-control" :class="hasError('fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.fullName">
-                <div v-if="hasError('fullName')" class="invalid-feedback">
-                    <div class="error" v-if="!$v.formData.fullName.required">Please provide a valid name.</div>
+                <input type="text" class="form-control" :class="hasError('nested', 'fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.nested.fullName">
+                <div v-if="hasError('nested', 'fullName')" class="invalid-feedback">
+                    <div class="error" v-if="!$v.formData.nested.fullName.required">Please provide a valid name.</div>
                 </div>
             </div>
             <div class="form-group">
@@ -82,15 +82,23 @@ export default {
     data(){
         return {
             formData:{
-                fullName: '',
                 email: null,
                 companyName: null,
                 numberOfEmployees: null,
                 referral: null,
                 terms: false,
+
+                nested: {
+                  fullName: ''
+                }
             },
             validationRules:[
-                {fullName: {required}, email: {required, email} },
+                {
+                  email: {required, email},
+                  nested: {
+                    fullName: {required}
+                  }
+                },
                 {companyName: {required}, numberOfEmployees: {required, numeric} },
                 {referral: {required}, terms: {checked} }
             ]

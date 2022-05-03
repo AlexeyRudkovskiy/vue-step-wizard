@@ -24,7 +24,7 @@
             <button type="button" class="btn btn btn-secondary btn-secondary" @click="footer.nextTab"><span>Next</span></button>
           </li>
           <li class="next list-inline-item float-right" v-if="footer.submitEnabled">
-            <button type="button" class="btn btn btn-secondary btn-secondary" @click="footer.onSubmit"><span>Submit</span></button>
+            <button type="button" class="btn btn btn-secondary btn-success" @click="footer.onSubmit"><span>Submit</span></button>
           </li>
         </template>
         <template v-else>
