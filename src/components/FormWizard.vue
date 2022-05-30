@@ -160,6 +160,10 @@ export default {
         },
 
         selectTab(index){
+            if (this.tabs[index].disabled) {
+              return;
+            }
+
             //Only switch to filled previous tabs
             if(index < this.currentTab){
               this._switchTab(index);
