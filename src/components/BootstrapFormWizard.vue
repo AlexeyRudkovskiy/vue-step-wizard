@@ -10,7 +10,7 @@
       @onPreviousStep="previousStep"
       @onReset="reset">
     <template v-slot:tab-layout="tabProps">
-      <a class="nav-link rounded-0 pt-2 pb-2" :class="{active: tabProps.tab.isActive}"><span class="d-inline">{{ tabProps.tab.title }}</span></a>
+      <a class="nav-link rounded-0 pt-2 pb-2" :class="{active: tabProps.tab.isActive && !tabProps.tab.disabled, disabled: tabProps.tab.disabled}"><span class="d-inline">{{ tabProps.tab.title }}</span></a>
     </template>
     <slot></slot>
     <template v-slot:footer="footer">

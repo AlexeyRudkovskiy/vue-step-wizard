@@ -4,7 +4,10 @@
                  @onNextStep="nextStep"
                  @onPreviousStep="previousStep"
                  @onReset="reset">
-        <tab-content title="About You" :selected="true">
+        <tab-content title="Disabled tab" :disabled="true">
+          This is disabled tab!
+        </tab-content>
+        <tab-content title="About You">
             <div class="form-group">
                 <label for="fullName">Full Name</label>
                 <input type="text" class="form-control" :class="hasError('nested', 'fullName') ? 'is-invalid' : ''" placeholder="Enter your name" v-model="formData.nested.fullName">
@@ -20,6 +23,12 @@
                     <div class="error" v-if="!$v.formData.email.email">Should be in email format</div>
                 </div>
             </div>
+        </tab-content>
+        <tab-content title="Second disabled" :disabled="formData.email !== 'admin@example.com'">
+          Second disabled step
+        </tab-content>
+        <tab-content title="Third disabled" :disabled="true">
+          Third disabled step
         </tab-content>
         <tab-content title="About your Company"> 
             <div class="form-group">
@@ -93,12 +102,15 @@ export default {
                 }
             },
             validationRules:[
+                {},
                 {
                   email: {required, email},
                   nested: {
                     fullName: {required}
                   }
                 },
+                {},
+                {},
                 {companyName: {required}, numberOfEmployees: {required, numeric} },
                 {referral: {required}, terms: {checked} }
             ]
@@ -115,6 +127,10 @@ export default {
             for(let field in this.formData){
                 this.formData[field] = null;
             }
+
+            this.formData.nested = {
+              fullName: ''
+            };
         },
 
         nextStep(){

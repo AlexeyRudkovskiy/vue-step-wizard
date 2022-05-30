@@ -14,6 +14,9 @@ export default {
         title: {
             type: String,
             required: true
+        },
+        disabled: {
+          default: false
         }
     },
     data(){

@@ -94,12 +94,16 @@ export default {
 
         this.tabs = this.$children;
         this.totalTabs = this.tabs.length;
-        this.currentTab = this.tabs.findIndex((tab) => tab.isActive === true);
+        this.currentTab = this.tabs
+            .filter(tab => !tab.disabled)
+            .findIndex((tab) => tab.isActive === true);
 
         //Select first tab if none is marked selected
         if(this.currentTab === -1 && this.totalTabs > 0){
-            this.tabs[0].isActive = true;
-            this.currentTab = 0;
+            const firstNotDisabled = this.tabs.filter(tab => !tab.disabled).shift();
+            firstNotDisabled.isActive = true;
+
+            this.currentTab = this.tabs.indexOf(firstNotDisabled);
         }
 
         //Setup Initial Progress
@@ -116,7 +120,8 @@ export default {
 
     methods:{
         previousTab(){
-            this._switchTab(this.currentTab - 1);
+            const nextTabIndex = this._findNextTab(-1);
+            this._switchTab(nextTabIndex);
 
             this.$emit('onPreviousStep'); 
         },
@@ -126,7 +131,8 @@ export default {
             if(this._validateCurrentTab() === false)
                 return;
 
-            this._switchTab(this.currentTab + 1);    
+            const nextTabIndex = this._findNextTab(1);
+            this._switchTab(nextTabIndex);
 
             this.$emit('onNextStep');          
               
@@ -139,7 +145,10 @@ export default {
              tab.isValidated = false;
            });
 
-           this._switchTab(0);
+           this.currentTab = 0;
+
+           const firstTab = this._findNextTab(1);
+           this._switchTab(firstTab);
            this.submitSuccess = false;
            this.storeState.v.$reset();
 
@@ -174,6 +183,19 @@ export default {
             if(this._validateCurrentTab() === false)
                 return;
             this.$emit('onComplete');
+        },
+
+        _findNextTab(direction = 1, offset = 1) {
+            const nextTabIndex = this.currentTab + direction * offset;
+            if (nextTabIndex < 0 || nextTabIndex >= this.tabs.length) {
+              return false;
+            }
+
+            const nextTab = this.tabs[nextTabIndex];
+            if (nextTab.disabled) {
+                return this._findNextTab(direction, offset + 1);
+            }
+            return nextTabIndex;
         },
 
         _switchTab(index){
@@ -235,8 +257,9 @@ export default {
 
         getTabClasses(tab) {
             return this.getClassesWithExtraFor('tab_single', {
-              'active': tab.isActive,
-              'validated': tab.isValidated
+              'active': tab.isActive && !tab.disabled,
+              'validated': tab.isValidated,
+              'disabled': tab.disabled
             });
         }
 
@@ -248,13 +271,13 @@ export default {
     },
     computed: {
         previousEnabled() {
-            return this.currentTab !== 0;
+          return this._findNextTab(-1) !== false && this.currentTab !== 0;
         },
         nextEnabled() {
-            return this.currentTab < this.totalTabs - 1;
+            return this.currentTab < this.totalTabs - 1 || this._findNextTab(1) !== false;
         },
         submitEnabled() {
-            return this.currentTab === this.totalTabs - 1;
+            return this.currentTab === this.totalTabs - 1 || this._findNextTab(1) === false;
         }
     }
     
