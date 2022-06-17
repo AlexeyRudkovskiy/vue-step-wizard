@@ -45,7 +45,7 @@ export default {
             }
           }
 
-          return (lastSegment in rules) && (rules[lastSegment].$error)
+          return (lastSegment in rules) && rules[lastSegment].$dirty && (rules[lastSegment].$error || rules[lastSegment].$invalid)
         }
     },
 
